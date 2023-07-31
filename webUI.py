@@ -4,11 +4,18 @@ import os
 import gradio
 import gradio as gr
 import shutil
+import argparse  # Import the argparse library to handle command-line arguments
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+def initialize_temp_directories():
+    # 创建temp目录以及其子文件夹audio和video
+    os.makedirs('temp/audio', exist_ok=True)
+    os.makedirs('temp/video', exist_ok=True)
 
 def convert(segment_length, video, audio, progress=gradio.Progress()):
+    initialize_temp_directories()  # 调用函数以创建目录
+
     if segment_length is None:
         segment_length=0
     print(video, audio)
@@ -152,4 +159,10 @@ with gradio.Blocks(
 
     btn.click(fn=convert, inputs=[seg, v, a], outputs=[o])
 
-demo.queue().launch()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Customize Gradio host and port.')
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='The host address for Gradio interface. Default is 127.0.0.1.')
+    parser.add_argument('--port', type=int, default=7860, help='The port number for Gradio interface. Default is 7860.')
+    args = parser.parse_args()
+    
+    demo.queue().launch(server_name=args.host, server_port=args.port) # Launch the Gradio interface using the custom host and port
